@@ -1,0 +1,45 @@
+import pandas as  pd
+import re
+import string
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.metrics import adjusted_rand_score
+
+#data loading and preprocessing
+data = open("C:/Users/karth/OneDrive/Desktop/DATA/distinct Positions.txt").read()
+data = re.split('\t|\n' , data)
+non_punc =[char for char in data if char not in string.punctuation]
+vectorizer = TfidfVectorizer(stop_words='english')
+
+#initialising the clusters
+
+X = vectorizer.fit_transform(non_punc).todense()
+true_k =5
+model = KMeans(n_clusters=true_k, init='k-means++', max_iter=100, n_init=1)
+model.fit(X)
+model.labels_
+print("Top terms per cluster:")
+order_centroids = model.cluster_centers_.argsort()[:, ::-1]
+terms = vectorizer.get_feature_names()
+for i in range(true_k):
+    print ("Cluster %d:" % i)
+    for ind in order_centroids[i, :30]:
+        print (' %s' % terms[ind])
+    print
+
+#predicting the new data
+Y = vectorizer.transform(["Manager, Social Media"])
+prediction = model.predict(Y)
+print(prediction)
+
+# Hierarchical visualisation of clusters(dendogram)
+plt.figure(figsize=(25, 10))
+plt.title('Hierarchical Clustering Dendrogram')
+plt.xlabel('sample index')
+plt.ylabel('distance')
+dendrogram(
+    Z,
+    leaf_rotation=90.,  # rotates the x axis labels
+    leaf_font_size=8.,  # font size for the x axis labels
+)
+plt.show()
